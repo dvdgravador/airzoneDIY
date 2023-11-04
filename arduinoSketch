@@ -1,0 +1,42 @@
+#include <Servo.h>
+
+const int numServos = 3;
+Servo servos[numServos];
+int interruptorPins[numServos] = {8, 7, 6};
+int servoPins[numServos] = {9, 10, 11};
+int preview[numServos] = {LOW, LOW, LOW};
+
+void setup() {
+  for (int i = 0; i < numServos; i++) {
+    servos[i].attach(servoPins[i]);
+    pinMode(interruptorPins[i], INPUT);
+    preview[i] = digitalRead(interruptorPins[i]);
+  }
+  Serial.begin(9600); 
+}
+
+void loop() {
+  delay(1000);
+  
+  for (int i = 0; i < numServos; i++) {
+    int interruptorState = digitalRead(interruptorPins[i]);
+    
+    if (interruptorState != preview[i]) {
+      moveServo(servos[i], interruptorState == HIGH ? 90 : 0, i);
+      preview[i] = interruptorState;
+    }
+  }
+}
+
+void moveServo(Servo servo, int grados, int numServo) {
+  servo.attach(servo.read()); 
+  servo.write(grados);
+  Serial.print("Moviendo el servo ");
+  Serial.print(numServo + 1); 
+  Serial.print(" a ");
+  Serial.print(grados);
+  Serial.println(" grados");
+  delay(2000);  
+  servo.detach(); 
+  
+}
